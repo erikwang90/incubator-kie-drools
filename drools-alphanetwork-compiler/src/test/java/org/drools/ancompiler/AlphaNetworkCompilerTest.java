@@ -388,21 +388,20 @@ public class AlphaNetworkCompilerTest extends BaseModelTest {
                         "when\n" +
                         "  $s : String( length > 4, length < 10)\n" +
                         "then\n" +
-                        "  results.add($s + \" is greater than 4 and smaller than 10\");\n" +
+                        "  ((java.util.List)results).add($s + \" is greater than 4 and smaller than 10\");\n" +
                         "end";
 
         KieSession ksession = getKieSession(testRunType, str);
 
-        ksession.insert("Luca");
-        ksession.insert("Asdrubale");
+	List<String> results = new ArrayList<>();
+	ksession.setGlobal("results", results);
 
-        List<String> results = new ArrayList<>();
-        ksession.setGlobal("results", results);
-
-        assertThat(ksession.fireAllRules()).isEqualTo(1);
-
-        ksession.fireAllRules();
-        assertThat(results.iterator().next()).isEqualTo("Asdrubale is greater than 4 and smaller than 10");
+	ksession.insert("Luca");
+	ksession.insert("Asdrubale");	
+        
+	assertThat(ksession.fireAllRules()).isEqualTo(1);
+	ksession.fireAllRules();
+        assertThat(results).containsExactly("Asdrubale is greater than 4 and smaller than 10");
     }
 
     @ParameterizedTest(name = "{0}")
